@@ -1,0 +1,18 @@
+#!/bin/bash
+# Installs kubectl into this docker image
+#
+# curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt to find the latest stable
+
+dest=/usr/local/bin/kubectl
+if [ -f $dest ] ; then
+  echo "${dest} already exists"
+  exit 0
+fi
+
+version=${KUBECTL_VERSION:-1.10.0}
+
+echo "Downloading kubectl version ${version} to ${dest}"
+curl -L https://storage.googleapis.com/kubernetes-release/release/v${version}/bin/linux/amd64/kubectl -o $dest
+
+chmod +x $dest
+echo "Done"
