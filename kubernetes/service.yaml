@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jon-shell
+  labels:
+    app: jon-shell
+    role: dset
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+  selector:
+    app: jon-shell
+    role: daemon

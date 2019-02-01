@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: jon-shell
+  labels:
+    app: jon-shell
+    role: dset
+spec:
+  selector:
+    matchLabels:
+      app: jon-shell
+      role: daemon
+  template:
+    metadata:
+      name: jon-shell
+      labels:
+        app: jon-shell
+        role: daemon
+    spec:
+      containers:
+      - name: shell
+        image: jonmoter/kube-shell:latest
+        command: ["/usr/local/bin/truthserver"]
+        ports:
+        - name: http
+          containerPort: 4242
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4242
+          initialDelaySeconds: 1
+        resources:
+          requests:
+            cpu: '0.01'
+            memory: '52Mi'
+          limits:
+            cpu: '1.0'
+            memory: '512Mi'
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true

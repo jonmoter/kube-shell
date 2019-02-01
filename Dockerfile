@@ -1,3 +1,16 @@
+##############################################################
+# Golang build image
+##############################################################
+FROM golang:1.11-alpine3.7
+
+WORKDIR /tmp
+
+COPY truth.go ./
+RUN go build -o /tmp/truthserver truth.go
+
+##############################################################
+# Main Docker Image
+##############################################################
 FROM alpine:3.7
 
 # Explicit is better than implicit
@@ -33,6 +46,9 @@ RUN pip3 install --no-cache-dir --upgrade \
 COPY install_kubectl /usr/local/bin/
 
 COPY dotfiles/* $HOME/
+
+RUN mkdir -p /usr/local/bin
+COPY --from=0 /tmp/truthserver /usr/local/bin/truthserver
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash"]
