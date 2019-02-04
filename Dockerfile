@@ -45,8 +45,7 @@ RUN apk add --no-cache \
 RUN pip3 install --no-cache-dir --upgrade \
       pip \
       setuptools \
-      httpie==0.9.9 \
-      httpstat
+      httpie==0.9.9
 
 # Use script to install kubectl, to avoid having a 50MB+ binary in the docker image
 COPY install_kubectl /usr/local/bin/
