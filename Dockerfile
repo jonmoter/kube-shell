@@ -32,6 +32,7 @@ RUN apk add --no-cache \
       busybox-extras \
       curl \
       dnstop \
+      iperf3 \
       iproute2 \
       iptraf-ng \
       jq \
