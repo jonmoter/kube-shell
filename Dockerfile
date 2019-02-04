@@ -3,7 +3,13 @@
 ##############################################################
 FROM golang:1.11-alpine3.7
 
+# Install git so we can run `go get`
+RUN apk add --no-cache git
+
 WORKDIR /tmp
+
+RUN go get github.com/rakyll/hey
+RUN go get github.com/davecheney/httpstat
 
 COPY truth.go ./
 RUN go build -o /tmp/truthserver truth.go
@@ -49,6 +55,8 @@ COPY dotfiles/* $HOME/
 
 RUN mkdir -p /usr/local/bin
 COPY --from=0 /tmp/truthserver /usr/local/bin/truthserver
+COPY --from=0 /go/bin/hey /usr/local/bin/hey
+COPY --from=0 /go/bin/httpstat /usr/local/bin/httpstat
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash"]
