@@ -73,20 +73,41 @@ func server() {
 		Handler: &router{},
 	}
 
-	fmt.Println("starting up server on port " + port)
+	loginfo("starting up server on port " + port)
 	server.ListenAndServe()
+}
+
+type requestLog struct {
+	Timestamp   string
+	HTTPCode    int
+	RequestPath string
+	RemoteHost  string
+	Headers     map[string][]string
+}
+
+func loginfo(msg string) {
+	fmt.Fprintf(os.Stderr, "{\"info\":\"%s\"}\n", msg)
+}
+
+func logerror(msg string) {
+	fmt.Fprintf(os.Stderr, "{\"error\":\"%s\"}\n", msg)
 }
 
 func log(r *http.Request, statusCode int) {
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-	forwarded := r.Header.Get("X-Forwarded-For")
-	fmt.Fprintf(
-		os.Stdout,
-		"{\"timestamp\":\"%s\",\"http_code\":%d,\"request_path\":\"%s\",\"remote_host\":\"%s\",\"x-forwarded_for\":\"%s\"}\n",
-		time.Now().Format(time.RFC3339),
-		statusCode,
-		r.URL.Path,
-		ip,
-		forwarded,
-	)
+	logline := requestLog{
+		Timestamp:   time.Now().Format(time.RFC3339),
+		HTTPCode:    statusCode,
+		RequestPath: r.URL.Path,
+		RemoteHost:  ip,
+		Headers:     r.Header,
+	}
+
+	json, err := json.Marshal(logline)
+	if err != nil {
+		logerror(err.Error())
+		return
+	}
+
+	fmt.Println(string(json))
 }
