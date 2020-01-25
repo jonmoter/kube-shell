@@ -11,6 +11,9 @@ WORKDIR /tmp
 RUN go get github.com/rakyll/hey
 RUN go get github.com/davecheney/httpstat
 
+RUN go get github.com/fullstorydev/grpcurl
+RUN go install github.com/fullstorydev/grpcurl/cmd/grpcurl
+
 COPY truth.go ./
 RUN go build -o /tmp/truthserver truth.go
 
@@ -57,6 +60,7 @@ RUN mkdir -p /usr/local/bin
 COPY --from=0 /tmp/truthserver /usr/local/bin/truthserver
 COPY --from=0 /go/bin/hey /usr/local/bin/hey
 COPY --from=0 /go/bin/httpstat /usr/local/bin/httpstat
+COPY --from=0 /go/bin/grpcurl /usr/local/bin/grpcurl
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash"]
