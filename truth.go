@@ -35,10 +35,19 @@ func handleHTTPCode(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, http.StatusText(n))
 }
 
+func handleHeaders(w http.ResponseWriter, r *http.Request) {
+	responseJSON, err := json.Marshal(collapseMapVals(r.Header))
+	if err != nil {
+		logerror(err.Error())
+		return
+	}
+	io.WriteString(w, string(responseJSON)+"\n")
+}
+
 func handlePing(w http.ResponseWriter, r *http.Request) {
 	response := map[string]bool{"running": true}
 	responseJSON, _ := json.Marshal(response)
-	io.WriteString(w, string(responseJSON))
+	io.WriteString(w, string(responseJSON)+"\n")
 }
 
 func main() {
@@ -49,6 +58,7 @@ func main() {
 func loadRoutes() {
 	routes = make(map[string]func(http.ResponseWriter, *http.Request))
 	routes["/kubernetes/canary"] = handlePing
+	routes["/headers"] = handleHeaders
 	routes["/ping"] = handlePing
 	routes["/"] = handlePing
 }
@@ -77,12 +87,22 @@ func server() {
 	server.ListenAndServe()
 }
 
+// http.Request.Header is a map where the values are arrays of strings,
+// and it's nicer to look at output where there's a single key/value
+func collapseMapVals(input map[string][]string) map[string]string {
+	result := map[string]string{}
+	for key, value := range input {
+		result[key] = value[0]
+	}
+	return result
+}
+
 type requestLog struct {
 	Timestamp   string
 	HTTPCode    int
 	RequestPath string
 	RemoteHost  string
-	Headers     map[string][]string
+	Headers     map[string]string
 }
 
 func loginfo(msg string) {
@@ -100,7 +120,7 @@ func log(r *http.Request, statusCode int) {
 		HTTPCode:    statusCode,
 		RequestPath: r.URL.Path,
 		RemoteHost:  ip,
-		Headers:     r.Header,
+		Headers:     collapseMapVals(r.Header),
 	}
 
 	json, err := json.Marshal(logline)
