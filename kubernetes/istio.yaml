@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: jon-shell
+spec:
+  hosts:
+    - '*'
+  gateways:
+    - helloworld-gateway
+  http:
+  - match:
+      - uri:
+          exact: '/truth'
+    rewrite:
+      uri: '/'      
+    route:
+      - destination:
+          host: jon-shell.helloworld.svc.cluster.local
+          port:
+            number: 80
