@@ -37,6 +37,7 @@ RUN apk add --no-cache \
       dnstop \
       iperf3 \
       iproute2 \
+      iptables \
       iptraf-ng \
       jq \
       net-tools \
